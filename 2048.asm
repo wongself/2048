@@ -128,9 +128,11 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         invoke InitBack
         invoke InitBrush
 
+		; 生成字体
 		invoke CreateFont, 26, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, offset FontName
         mov hf, eax
 
+		; 初始化方格及其字体
         xor ebx, ebx
         .while ebx < REC_LEN
             invoke SendMessage, dword ptr hRec[ebx * 4], WM_SETTEXT, 0, NULL
@@ -138,6 +140,7 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             inc ebx
         .endw
 
+		; 随机生成两个方格
         invoke RandomNumber
         invoke RandomNumber
 
@@ -171,6 +174,7 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             ret
         .endif
 
+        ; 获得当前操作的方格句柄
         xor ebx, ebx
         .while (dword ptr hRec[ebx * 4] != ecx) && (ebx < REC_LEN)
             inc ebx
@@ -178,10 +182,10 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 
         invoke ShowNumber
 
-        invoke SetTextColor, wParam, TextColor
-        movzx esi, word ptr hText[ebx * 2]
-        invoke SetBkColor, wParam, dword ptr hBack[esi * 4]
-        mov eax, dword ptr hBrush[esi * 4]
+        invoke SetTextColor, wParam, TextColor              ; 绘制文本颜色
+        movzx esi, word ptr hText[ebx * 2]                  ; 根据数字大小选择笔刷
+        invoke SetBkColor, wParam, dword ptr hBack[esi * 4] ; 绘制背景颜色
+        mov eax, dword ptr hBrush[esi * 4]                  ; 返回笔刷以便绘图
 
         ret
 		
@@ -189,6 +193,7 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         mov eax, wParam
         movzx eax, ax       ; 获得命令
 
+		; 开始新游戏
         .if eax == IDC_NEW || eax == ID_NEW
             invoke RtlZeroMemory, offset hText, sizeof hText
             invoke RandomNumber
@@ -198,50 +203,53 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
             and isLose, 0
             and iScore, 0
 		
-		; 方向键
+		; 上方向键
         .elseif eax == IDC_UP
             .if (isWin == 0) && (isLose == 0)
-                invoke UpMerge
-                invoke RefreshRec
-                invoke JudgeWin
-                invoke dwtoa, iScore, offset cScore
-                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore
+                invoke UpMerge      ; 生成新数字矩阵
+                invoke RefreshRec   ; 刷新方格以便重新绘制背景
+                invoke JudgeWin     ; 判断是否成功
+                invoke dwtoa, iScore, offset cScore                             ; 将成绩转换为文本
+                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore    ; 显示当前成绩
             .endif
 
             invoke ProcessGame, hWnd
         
+		; 下方向键
         .elseif eax == IDC_DOWN
             .if (isWin == 0) && (isLose == 0)
-                invoke DownMerge
-                invoke RefreshRec
-                invoke JudgeWin
-                invoke dwtoa, iScore, offset cScore
-                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore
+                invoke DownMerge    ; 生成新数字矩阵
+                invoke RefreshRec   ; 刷新方格以便重新绘制背景
+                invoke JudgeWin     ; 判断是否成功
+                invoke dwtoa, iScore, offset cScore                             ; 将成绩转换为文本
+                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore    ; 显示当前成绩
             .endif
 
             invoke ProcessGame, hWnd
         
+		; 左方向键
         .elseif eax == IDC_LEFT
             .if (isWin == 0) && (isLose == 0)
-                invoke LeftMerge
-                invoke RefreshRec
-                invoke JudgeWin
-                invoke dwtoa, iScore, offset cScore
-                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore
+                invoke LeftMerge    ; 生成新数字矩阵
+                invoke RefreshRec   ; 刷新方格以便重新绘制背景
+                invoke JudgeWin     ; 判断是否成功
+                invoke dwtoa, iScore, offset cScore                             ; 将成绩转换为文本
+                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore    ; 显示当前成绩
             .endif
 
             invoke ProcessGame, hWnd
         
+		; 右方向键
         .elseif eax == IDC_RIGHT
             .if (isWin == 0) && (isLose == 0)
-                invoke RightMerge
-                invoke RefreshRec
-                invoke JudgeWin
-                invoke dwtoa, iScore, offset cScore
-                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore
+                invoke RightMerge   ; 生成新数字矩阵
+                invoke RefreshRec   ; 刷新方格以便重新绘制背景
+                invoke JudgeWin     ; 判断是否成功
+                invoke dwtoa, iScore, offset cScore                             ; 将成绩转换为文本
+                invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cScore    ; 显示当前成绩
             .endif
 
-            invoke ProcessGame, hWnd
+            invoke ProcessGame, hWnd    ; 处理标志位
         
         ; 关于
         .elseif eax == ID_ABOUT
@@ -260,6 +268,7 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         invoke DeleteObject, hStageBrush
         invoke DeleteObject, hDialogBrush
 
+        ; 删除笔刷
         xor ebx, ebx
         .while ebx < REC_LEN
             invoke DeleteObject, dword ptr hBrush[ebx * 4]
@@ -283,6 +292,7 @@ Calculate endp
 
 ProcessGame proc hWnd:dword
 
+    ; 若成功，则显示成功对话框
     .if isWin == 1
         invoke MessageBox, hWnd, offset cWin, offset GameName, MB_OK
         ret
@@ -290,6 +300,7 @@ ProcessGame proc hWnd:dword
 
     invoke RandomNumber
 
+    ; 若失败，则显示失败对话框
     invoke JudgeLose
     .if isLose == 1
         invoke MessageBox, hWnd, offset cLose, offset GameName, MB_OK
@@ -300,9 +311,10 @@ ProcessGame proc hWnd:dword
 ProcessGame endp
 
 
+; 判断游戏是否成功
 JudgeWin proc
 
-    xor ebx, ebx
+    ; 若出现2048，则游戏成功
     .while ebx < REC_LEN
         .if word ptr hText[ebx * 2] == WIN_POW
             or isWin, 1
@@ -314,6 +326,7 @@ JudgeWin proc
 JudgeWin endp
 
 
+; 判断游戏是否失败
 JudgeLose proc
 
 	or isLose, 1
@@ -321,6 +334,7 @@ JudgeLose proc
     .while ebx < 32
         xor ecx, ecx
         .while ecx < 8
+            ; 若有空位，则游戏尚未失败
             mov esi, ebx
             add esi, ecx
             mov ax, word ptr hText[esi]
@@ -329,6 +343,7 @@ JudgeLose proc
                 .break
             .endif
 
+            ; 若上邻位可合并，则游戏尚未失败
             .if ebx != 0
                 .if ax == word ptr hText[esi - 8]
                     and isLose, 0
@@ -336,6 +351,7 @@ JudgeLose proc
                 .endif
             .endif
 
+            ; 若下邻位可合并，则游戏尚未失败
             .if ebx != 24
                 .if ax == word ptr hText[esi + 8]
                     and isLose, 0
@@ -343,6 +359,7 @@ JudgeLose proc
                 .endif
             .endif
 
+            ; 若左邻位可合并，则游戏尚未失败
             .if ecx != 0
                 .if ax == word ptr hText[esi - 2]
                     and isLose, 0
@@ -350,6 +367,7 @@ JudgeLose proc
                 .endif
             .endif
 
+            ; 若右邻位可合并，则游戏尚未失败
             .if ecx != 6
                 .if ax == word ptr hText[esi + 2]
                     and isLose, 0
@@ -371,7 +389,9 @@ JudgeLose endp
 RightMerge proc
 
 	xor ebx, ebx
+    ; 针对每一行
     .while ebx < 32
+        ; 向右合并
         mov ecx, 6
         .while (ecx > 0) && (ecx < 00ffh)
             mov esi, ebx
@@ -393,6 +413,7 @@ RightMerge proc
             sub ecx, 2
         .endw
 
+        ; 向右移位
         xor ecx, ecx
         .while ecx < 6
             mov esi, ebx
@@ -419,10 +440,12 @@ RightMerge endp
 LeftMerge proc
 
 	xor ebx, ebx
+    ; 针对每一行
     .while ebx < 32
         mov edx, ebx
         add edx, 6
 
+        ; 向左合并
         xor ecx, ecx
         .while ecx < 6
             mov esi, ebx
@@ -444,6 +467,7 @@ LeftMerge proc
             add ecx, 2
         .endw
 
+        ; 向左移位
         mov ecx, 6
         .while ecx > 0
             mov esi, ebx
@@ -470,10 +494,12 @@ LeftMerge endp
 DownMerge proc
 		
     xor ecx, ecx
+    ; 针对每一列
     .while ecx < 8
         mov edx, ecx
         add edx, 24
 
+        ; 向下合并
         mov ebx, 24
         .while (ebx > 0) && (ebx < 00ffh)
             mov esi, ebx
@@ -495,6 +521,7 @@ DownMerge proc
             sub ebx, 8
         .endw
 
+        ; 向下移位
         xor ebx, ebx
         .while ebx < 24
             mov esi, ebx
@@ -521,10 +548,12 @@ DownMerge endp
 UpMerge proc
 		
     xor ecx, ecx
+    ; 针对每一列
     .while ecx < 8
         mov edx, ecx
         add edx, 24
 
+        ; 向上合并
         xor ebx, ebx
         .while ebx < 24
             mov esi, ebx
@@ -546,6 +575,7 @@ UpMerge proc
             add ebx, 8
         .endw
 
+        ; 向上移位
         mov ebx, 24
         .while ebx > 0
             mov esi, ebx
@@ -569,6 +599,7 @@ UpMerge proc
 UpMerge endp
 
 
+; 生成1或2并将其赋值到空的随机方格
 RandomNumber proc
 
     local isRandom:dword
@@ -576,6 +607,7 @@ RandomNumber proc
     local isPow1:dword
     and isRandom, 0
 
+    ; 计算空方格数量
     xor edx, edx
     xor ebx, ebx
     .while ebx < 32
@@ -598,15 +630,18 @@ RandomNumber proc
 
     mov esi, edx
 
+    ; 随机选择某一空方格
     invoke GetTickCount
     div esi
     mov remain, edx
     
+    ; 随机选择生成1还是2
     mov esi, 2
     invoke GetTickCount
     div esi
     mov isPow1, edx
     
+    ; 赋值到指定的方格
     xor edi, edi
     xor ebx, ebx
     .while ebx < 32
@@ -637,6 +672,7 @@ RandomNumber proc
 RandomNumber endp
 
 
+; 刷新方格以便于重新绘制背景
 RefreshRec proc
 
     xor ebx, ebx
@@ -649,6 +685,7 @@ RefreshRec proc
 RefreshRec endp
 
 
+; 计算分数
 GetScore proc
 
     .if eax == 0
@@ -817,7 +854,7 @@ InitBack proc
 InitBack endp
 
 InitRec proc hWnd:dword
-    ; 获取控件句柄
+    
     invoke GetDlgItem, hWnd, IDC_STAGE
     mov hStage, eax
 
