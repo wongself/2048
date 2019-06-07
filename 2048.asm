@@ -439,7 +439,7 @@ RightMerge endp
 
 LeftMerge proc
 
-	xor ebx, ebx
+    xor ebx, ebx
     ; 针对每一行
     .while ebx < 32
         mov edx, ebx
@@ -854,7 +854,7 @@ InitBack proc
 InitBack endp
 
 InitRec proc hWnd:dword
-    
+
     invoke GetDlgItem, hWnd, IDC_STAGE
     mov hStage, eax
 
