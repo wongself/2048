@@ -31,13 +31,13 @@
 #define IDC_NEWGAME                     1030
 #define IDC_SCORE                       1033
 #define IDC_SCORETEXT                   1034
+#define IDC_ANIMATE1                    1035
 #define ID_40001                        40001
 #define ID_40002                        40002
 #define ID_40003                        40003
 #define ID_NEW                          40004
 #define ID_EXIT                         40005
 #define ID_ABOUT                        40006
-#define ID_ACCELERATOR40014             40014
 
 // Next default values for new objects
 // 
@@ -45,7 +45,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40016
-#define _APS_NEXT_CONTROL_VALUE         1035
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

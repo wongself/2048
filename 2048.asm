@@ -197,6 +197,7 @@ Calculate proc hWnd:dword, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         .if eax == IDC_NEW || eax == ID_NEW
             invoke RtlZeroMemory, offset hText, sizeof hText
             invoke RandomNumber
+            invoke RandomNumber
             invoke RefreshRec
             invoke SendMessage, hScoreText, WM_SETTEXT, 0, offset cPow0
             and isWin, 0
